@@ -7,72 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func TestHash(t *testing.T) {
-	tests := []struct {
-		password string
-		cost     int
-	}{
-		{"password123", bcrypt.DefaultCost},
-		{"shortpass", bcrypt.DefaultCost},
-		{"anotherPassword", 14},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.password, func(t *testing.T) {
-			hashedPassword, err := Hash(tt.password, tt.cost)
-			if err != nil {
-				t.Fatalf("Hash() error = %v, wantErr = nil", err)
-			}
-
-			// Check that the hash is not empty
-			if hashedPassword == "" {
-				t.Fatalf("Hash() returned an empty string")
-			}
-
-			// Check that the hash can be verified
-			if match, _ := Matches(tt.password, hashedPassword); !match {
-				t.Fatalf("Matches() = false, want true")
-			}
-		})
-	}
-}
-
-func TestMatches(t *testing.T) {
-	// Testing valid match
-	t.Run("valid match", func(t *testing.T) {
-		password := "password123"
-		hashedPassword, err := Hash(password, bcrypt.DefaultCost)
-		if err != nil {
-			t.Fatalf("Hash() error = %v", err)
-		}
-
-		match, err := Matches(password, hashedPassword)
-		if err != nil {
-			t.Fatalf("Matches() error = %v", err)
-		}
-		if !match {
-			t.Fatalf("Matches() = false, want true")
-		}
-	})
-
-	// Testing invalid match
-	t.Run("invalid match", func(t *testing.T) {
-		password := "password123"
-		hashedPassword, err := Hash("otherpassword", bcrypt.DefaultCost)
-		if err != nil {
-			t.Fatalf("Hash() error = %v", err)
-		}
-
-		match, err := Matches(password, hashedPassword)
-		if err != nil {
-			t.Fatalf("Matches() error = %v", err)
-		}
-		if match {
-			t.Fatalf("Matches() = true, want false")
-		}
-	})
-}
-
 func TestCommon(t *testing.T) {
 	tests := []struct {
 		password string
@@ -143,11 +77,77 @@ func TestGenerateOTP(t *testing.T) {
 
 	// Testing invalid length
 	t.Run("invalid length", func(t *testing.T) {
-		length := 0
+		length := 3
 		_, err := GenerateOTP(length)
 		if err == nil {
 			t.Fatalf("GenerateOTP() error = %v, want true", err)
 		}
 
+	})
+}
+
+func TestHashWithBcrypt(t *testing.T) {
+	tests := []struct {
+		password string
+		cost     int
+	}{
+		{"password123", bcrypt.DefaultCost},
+		{"shortpass", bcrypt.DefaultCost},
+		{"anotherPassword", 14},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.password, func(t *testing.T) {
+			hashedPassword, err := HashWithBcrypt(tt.password, tt.cost)
+			if err != nil {
+				t.Fatalf("HashWithBcrypt() error = %v, wantErr = nil", err)
+			}
+
+			// Check that the hash is not empty
+			if hashedPassword == "" {
+				t.Fatalf("HashWithBcrypt() returned an empty string")
+			}
+
+			// Check that the hash can be verified
+			if match, _ := CompareBcryptPasswordAndHash(tt.password, hashedPassword); !match {
+				t.Fatalf("CompareBcryptPasswordAndHash() = false, want true")
+			}
+		})
+	}
+}
+
+func TestCompareBcryptPasswordAndHash(t *testing.T) {
+	// Testing valid match
+	t.Run("valid match", func(t *testing.T) {
+		password := "password123"
+		hashedPassword, err := HashWithBcrypt(password, bcrypt.DefaultCost)
+		if err != nil {
+			t.Fatalf("HashWithBcrypt() error = %v", err)
+		}
+
+		match, err := CompareBcryptPasswordAndHash(password, hashedPassword)
+		if err != nil {
+			t.Fatalf("CompareBcryptPasswordAndHash() error = %v", err)
+		}
+		if !match {
+			t.Fatalf("CompareBcryptPasswordAndHash() = false, want true")
+		}
+	})
+
+	// Testing invalid match
+	t.Run("invalid match", func(t *testing.T) {
+		password := "password123"
+		hashedPassword, err := HashWithBcrypt("otherpassword", bcrypt.DefaultCost)
+		if err != nil {
+			t.Fatalf("HashWithBcrypt() error = %v", err)
+		}
+
+		match, err := CompareBcryptPasswordAndHash(password, hashedPassword)
+		if err != nil {
+			t.Fatalf("CompareBcryptPasswordAndHash() error = %v", err)
+		}
+		if match {
+			t.Fatalf("CompareBcryptPasswordAndHash() = true, want false")
+		}
 	})
 }
