@@ -92,3 +92,35 @@ func TestCommon(t *testing.T) {
 		})
 	}
 }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		password string
+		valid    bool
+	}{
+		{"Short1!", false},
+		{"alllowercase1!", false},
+		{"ALLUPPERCASE1!", false},
+		{"NoNumbers!", false},
+		{"NoSpecial123", false},
+		{"ValidPass1!", true},
+		{"WayTooLongPassword1234567890!WayTooLongPassword1234567890!WayTooLongPassword123", false},
+		{"password", false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.password, func(t *testing.T) {
+			valid, errs := Validate(test.password)
+
+			// Check that invalid passwords return an error
+			if !test.valid && valid {
+				t.Errorf("expected failure but got success for password: %s", test.password)
+			}
+
+			// Check that valid passwords return no errors
+			if test.valid && !valid {
+				t.Errorf("expected success but got failure for password: %s, errors: %v", test.password, errs)
+			}
+		})
+	}
+}
