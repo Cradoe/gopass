@@ -34,35 +34,27 @@ func Matches(plaintextPassword, hashedPassword string) (bool, error) {
 	return true, nil
 }
 
-func IsCommon[T comparable](value T) bool {
-	if strValue, ok := any(value).(string); ok {
-		for _, commonPassword := range CommonPasswords {
-			if strValue == commonPassword {
-				return true
-			}
+func IsCommon(value string) bool {
+	for _, commonPassword := range CommonPasswords {
+		if value == commonPassword {
+			return true
 		}
 	}
 	return false
 }
 
-func Validate[T comparable](value T) (bool, []string) {
-
-	strValue, ok := any(value).(string)
-	if !ok {
-		return false, []string{"invalid password format"}
-	}
-
+func Validate(value string) (bool, []string) {
 	var errors []string
-	if len(strValue) < 8 {
+	if len(value) < 8 {
 		errors = append(errors, "password must be at least 8 characters long")
 	}
-	if len(strValue) > 72 {
+	if len(value) > 72 {
 		errors = append(errors, "password must not be more than 72 characters")
 	}
 
 	var hasUpper, hasLower, hasDigit, hasSpecial bool
 
-	for _, char := range strValue {
+	for _, char := range value {
 		switch {
 		case unicode.IsUpper(char):
 			hasUpper = true
@@ -87,7 +79,7 @@ func Validate[T comparable](value T) (bool, []string) {
 	if !hasSpecial {
 		errors = append(errors, "password must contain at least one special character")
 	}
-	if IsCommon(strValue) {
+	if IsCommon(value) {
 		errors = append(errors, "password is too common, please choose a stronger one")
 	}
 
