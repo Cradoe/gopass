@@ -1,7 +1,10 @@
 package gopass
 
 import (
+	"crypto/rand"
 	"errors"
+	"fmt"
+	"math/big"
 	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
@@ -88,4 +91,21 @@ func Validate(value string) (bool, []string) {
 	}
 
 	return true, nil
+}
+
+func GenerateOTP(length int) (string, error) {
+	if length <= 0 {
+		return "", fmt.Errorf("invalid length %d: must be greater than zero", length)
+	}
+
+	otp := make([]byte, length)
+	for i := 0; i < length; i++ {
+		n, err := rand.Int(rand.Reader, big.NewInt(10))
+		if err != nil {
+			return "", err
+		}
+		otp[i] = byte('0') + byte(n.Int64())
+	}
+
+	return string(otp), nil
 }

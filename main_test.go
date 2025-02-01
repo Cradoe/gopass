@@ -1,6 +1,7 @@
 package gopass
 
 import (
+	"strconv"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
@@ -123,4 +124,30 @@ func TestValidate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGenerateOTP(t *testing.T) {
+	// Testing valid length
+	t.Run("valid length", func(t *testing.T) {
+		length := 9
+		otp, err := GenerateOTP(length)
+		if err != nil {
+			t.Fatalf("GenerateOTP() error = %v", err)
+		}
+
+		if _, err = strconv.Atoi(otp); err != nil {
+			t.Fatalf("%q is not convertible to number.\n", otp)
+		}
+
+	})
+
+	// Testing invalid length
+	t.Run("invalid length", func(t *testing.T) {
+		length := 0
+		_, err := GenerateOTP(length)
+		if err == nil {
+			t.Fatalf("GenerateOTP() error = %v, want true", err)
+		}
+
+	})
 }
