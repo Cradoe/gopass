@@ -4,11 +4,12 @@
 
 ## Features
 
-- **Commonly used:** Checks if password is part of the 10k most commonly used passwords.
-- **Password Validation:** Ensures password is strong by checking the length, character requirements, and is not part of the commonly used passwords.
-- **Secure Hashing:** Hash passwords securely using bcrypt hashing algorithm.
-- **Password Comparison:** Compares bcrypt hashed passwords with plaintext.
-- **OTP Generation:** Create numeric one-time passwords of configurable lengths.
+- [**Password Generation**](#password-generation) – Generates a secure random password with customizable options.
+- [**Password Validation**](#password-validation) – Ensures password strength by checking length, character requirements, and common usage.
+- [**Check for Commonly Used Passwords**](#is-common) – Checks if a password is part of the 10k most commonly used passwords.
+- [**Secure Hashing**](#password-hashing-and-comparison) – Hash passwords securely using the bcrypt algorithm.
+- [**Password Comparison**](#password-hashing-and-comparison) – Compares bcrypt-hashed passwords with plaintext.
+- [**OTP Generation**](#generating-one-time-passwords-otps) – Creates numeric one-time passwords of configurable lengths.
 
 ## Installation
 
@@ -19,6 +20,58 @@ To install `gopass`, run:
 ```
 
 ## Usage
+
+### Password Generation
+
+Generate password with default options:
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/cradoe/gopass"
+)
+
+func main() {
+	password, err := gopass.GeneratePassword()
+	if err != nil {
+		fmt.Println("Error generating password:", err)
+		return
+	}
+
+	fmt.Println("Generated Password:", password)
+}
+```
+
+### Custom Password Generation
+
+You can customize the generated password by specifying options such as length, inclusion of uppercase letters, numbers, and symbols.
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/cradoe/gopass"
+)
+
+func main() {
+	password, err := gopass.GeneratePassword(gopass.GeneratePasswordOptions{
+		Length:         16,
+		IncludeUpper:   true,
+		IncludeLower:   true,
+		IncludeNumbers: true,
+		IncludeSymbols: false,
+	})
+	if err != nil {
+		fmt.Println("Error generating password:", err)
+		return
+	}
+
+	fmt.Println("Custom Password:", password)
+}
+```
 
 ### Password Validation
 

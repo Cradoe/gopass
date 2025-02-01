@@ -1,6 +1,6 @@
-// Package gopass provides utilities for password validation, hashing, comparison, and OTP generation.
+// Package gopass provides utilities for password generation, validation, hashing, comparison, and OTP generation.
 
-// This package helps developers enforce password security policies, generate one-time passwords (OTPs) for authentication systems.
+// This package helps developers enforce password security policies, generate secure passwords, one-time passwords (OTPs) for authentication systems.
 // It also hash passwords securely, currently supports bcrypt,
 // other algorithms will be provided in the future.
 
@@ -8,6 +8,7 @@
 // - Validate password strength based on length, character requirements, and common password checks.
 // - Securely hash passwords using bcrypt with customizable cost factors.
 // - Compare plaintext passwords with hashed values to verify authentication.
+// - Generate random password that is secure, allows customizable options.
 // - Generate numeric OTPs of configurable lengths.
 
 // "Hash* functions" denotes all functions that is, or starts with "Hash" and
@@ -20,6 +21,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"math/big"
+	"strings"
 	"unicode"
 
 	"golang.org/x/crypto/bcrypt"
@@ -214,4 +216,104 @@ func CompareBcryptPasswordAndHash(plaintextPassword, hashedPassword string) (mat
 	}
 
 	return true, nil
+}
+
+// Character sets for password generation
+const (
+	lowerChars  = "abcdefghijklmnopqrstuvwxyz"
+	upperChars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numberChars = "0123456789"
+	symbolChars = "!@#$%^&*()-_=+[]{}|;:'\",.<>?/~"
+)
+
+type GeneratePasswordOptions struct {
+	Length         int
+	IncludeUpper   bool
+	IncludeLower   bool
+	IncludeNumbers bool
+	IncludeSymbols bool
+}
+
+// GeneratePassword randomly generates a secure password,
+// It has options for customizing it's behavior,  option is used when custom isn't given
+//
+// Returns the generated password as a string or an error if there's any
+func GeneratePassword(params ...GeneratePasswordOptions) (string, error) {
+	options := GeneratePasswordOptions{
+		Length:         12,
+		IncludeUpper:   true,
+		IncludeLower:   true,
+		IncludeNumbers: true,
+		IncludeSymbols: true,
+	}
+
+	// check and use custom options if params is given
+	if len(params) > 0 {
+		options = params[0]
+	}
+
+	// Validate minimum length requirement
+	if options.Length < 4 {
+		return "", errors.New("password length must be at least 4 characters")
+	}
+
+	// Build character pool
+	charPool := ""
+	if options.IncludeLower {
+		charPool += lowerChars
+	}
+	if options.IncludeUpper {
+		charPool += upperChars
+	}
+	if options.IncludeNumbers {
+		charPool += numberChars
+	}
+	if options.IncludeSymbols {
+		charPool += symbolChars
+	}
+
+	if len(charPool) == 0 {
+		return "", errors.New("at least one character type must be selected")
+	}
+
+	// Let's ensure that at the password have at least one charcter from the selected character pool
+	var password strings.Builder
+	if options.IncludeLower {
+		password.WriteByte(lowerChars[randInt(len(lowerChars))])
+	}
+	if options.IncludeUpper {
+		password.WriteByte(upperChars[randInt(len(upperChars))])
+	}
+	if options.IncludeNumbers {
+		password.WriteByte(numberChars[randInt(len(numberChars))])
+	}
+	if options.IncludeSymbols {
+		password.WriteByte(symbolChars[randInt(len(symbolChars))])
+	}
+
+	// Fill the rest of the password
+	for password.Len() < options.Length {
+		password.WriteByte(charPool[randInt(len(charPool))])
+	}
+
+	// We need to suffle the string to avoid predictable pattern
+	result := shuffleString(password.String())
+
+	return result, nil
+}
+
+// randInt generates a random number that is cryptographically secure
+func randInt(max int) int {
+	n, _ := rand.Int(rand.Reader, big.NewInt(int64(max)))
+	return int(n.Int64())
+}
+
+// shuffleString shuffles characters randomly
+func shuffleString(input string) string {
+	runes := []rune(input)
+	for i := range runes {
+		j := randInt(len(runes))
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
 }
