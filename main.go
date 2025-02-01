@@ -6,11 +6,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Hash(plaintextPassword string, cost int) (string, error) {
-	if cost == 0 {
-		cost = bcrypt.DefaultCost
+func Hash(plaintextPassword string, cost ...int) (string, error) {
+	if len(cost) == 0 {
+		cost = append(cost, bcrypt.DefaultCost)
 	}
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), cost)
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), cost[0])
 	if err != nil {
 		return "", err
 	}
@@ -33,7 +34,6 @@ func Matches(plaintextPassword, hashedPassword string) (bool, error) {
 }
 
 func IsCommon[T comparable](value T) bool {
-	// Check if the type T is a string before proceeding with comparisons
 	if strValue, ok := any(value).(string); ok {
 		for _, commonPassword := range CommonPasswords {
 			if strValue == commonPassword {
