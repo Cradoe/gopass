@@ -32,7 +32,7 @@ func Matches(plaintextPassword, hashedPassword string) (bool, error) {
 	return true, nil
 }
 
-func Common[T comparable](value T) bool {
+func IsCommon[T comparable](value T) bool {
 	// Check if the type T is a string before proceeding with comparisons
 	if strValue, ok := any(value).(string); ok {
 		for _, commonPassword := range CommonPasswords {

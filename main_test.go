@@ -85,7 +85,7 @@ func TestCommon(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.password, func(t *testing.T) {
-			result := Common(tt.password)
+			result := IsCommon(tt.password)
 			if result != tt.expected {
 				t.Fatalf("Common() = %v, want %v", result, tt.expected)
 			}
