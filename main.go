@@ -86,14 +86,14 @@ func IsCommon(value string) bool {
 // - At least one special character
 // - Is not common password
 //
-// It returns a boolean indicating validity and a slice of errors describing any issues.
-func Validate(value string) (bool, []error) {
-	var errors []error
+// It returns a boolean indicating validity and a slice of strings describing any issues.
+func Validate(value string) (bool, []string) {
+	var errors []string
 	if len(value) < 8 {
-		errors = append(errors, ErrPasswordTooShort)
+		errors = append(errors, ErrPasswordTooShort.Error())
 	}
 	if len(value) > 72 {
-		errors = append(errors, ErrPasswordTooLong)
+		errors = append(errors, ErrPasswordTooLong.Error())
 	}
 
 	var hasUpper, hasLower, hasDigit, hasSpecial bool
@@ -112,19 +112,19 @@ func Validate(value string) (bool, []error) {
 	}
 
 	if !hasUpper {
-		errors = append(errors, ErrPasswordShouldHaveUppercase)
+		errors = append(errors, ErrPasswordShouldHaveUppercase.Error())
 	}
 	if !hasLower {
-		errors = append(errors, ErrPasswordShouldHaveLowercase)
+		errors = append(errors, ErrPasswordShouldHaveLowercase.Error())
 	}
 	if !hasDigit {
-		errors = append(errors, ErrPasswordShouldHaveDigit)
+		errors = append(errors, ErrPasswordShouldHaveDigit.Error())
 	}
 	if !hasSpecial {
-		errors = append(errors, ErrPasswordShouldHaveSpecialChar)
+		errors = append(errors, ErrPasswordShouldHaveSpecialChar.Error())
 	}
 	if IsCommon(value) {
-		errors = append(errors, ErrPasswordTooCommon)
+		errors = append(errors, ErrPasswordTooCommon.Error())
 	}
 
 	if len(errors) > 0 {

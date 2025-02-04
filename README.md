@@ -1,6 +1,6 @@
 # Gopass
 
-`gopass` is a Go package that provides utilities for password security, validation, hashing, comparison, and OTP (One-Time Password) generation.
+`gopass` is a Go package that provides utilities for password security, generation, validation, hashing, comparison, and OTP (One-Time Password) generation.
 
 ## Features
 
